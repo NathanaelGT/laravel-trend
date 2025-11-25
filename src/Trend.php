@@ -2,6 +2,7 @@
 
 namespace Flowframe\Trend;
 
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Carbon\CarbonPeriod;
 use Error;
@@ -148,22 +149,23 @@ class Trend
 
     public function mapValuesToDates(Collection $values): Collection
     {
-        $values = $values->map(fn ($value) => new TrendValue(
-            date: $value->{$this->dateAlias},
-            aggregate: $value->aggregate,
-        ));
+        $values = $values->mapWithKeys(function ($value) {
+            $label = Carbon::parse($value->{$this->dateAlias})->format($this->getCarbonDateFormat());
 
-        $placeholders = $this->getDatePeriod()->map(
-            fn (CarbonInterface $date) => new TrendValue(
-                date: $date->format($this->getCarbonDateFormat()),
-                aggregate: 0,
-            )
-        );
+            return [
+                $value->date => $value->aggregate,
+            ];
+        });
 
-        return $values
-            ->merge($placeholders)
-            ->unique('date')
-            ->sort()
+        return $this->getDatePeriod()
+            ->map(function (CarbonInterface $date) use ($values) {
+                $label = $date->format($this->getCarbonDateFormat());
+
+                return new TrendValue(
+                    date: $label,
+                    aggregate: $values[$label] ?? 0,
+                );
+            })
             ->flatten();
     }
 
