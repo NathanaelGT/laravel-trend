@@ -153,7 +153,7 @@ class Trend
             $label = Carbon::parse($value->{$this->dateAlias})->format($this->getCarbonDateFormat());
 
             return [
-                $value->date => $value->aggregate,
+                $label => $value->aggregate,
             ];
         });
 
