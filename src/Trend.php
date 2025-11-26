@@ -150,7 +150,7 @@ class Trend
     public function mapValuesToDates(Collection $values): Collection
     {
         $values = $values->mapWithKeys(function ($value) {
-            $label = Carbon::parse($value->{$this->dateAlias})->format($this->getCarbonDateFormat());
+            $label = Carbon::parse($value->{$this->dateAlias})->isoFormat($this->getCarbonDateFormat());
 
             return [
                 $label => $value->aggregate,
@@ -159,7 +159,7 @@ class Trend
 
         return $this->getDatePeriod()
             ->map(function (CarbonInterface $date) use ($values) {
-                $label = $date->format($this->getCarbonDateFormat());
+                $label = $date->isoFormat($this->getCarbonDateFormat());
 
                 return new TrendValue(
                     date: $label,
@@ -198,12 +198,12 @@ class Trend
         }
 
         return match ($this->interval) {
-            'minute' => 'Y-m-d H:i:00',
-            'hour' => 'Y-m-d H:00',
-            'day' => 'Y-m-d',
-            'week' => 'Y-W',
-            'month' => 'Y-m',
-            'year' => 'Y',
+            'minute' => 'YYYY-MM-DD HH:mm:00',
+            'hour' => 'YYYY-MM-DD HH:00',
+            'day' => 'YYYY-MM-DD',
+            'week' => 'YYYY-W',
+            'month' => 'YYYY-MM',
+            'year' => 'YYYY',
             default => throw new Error('Invalid interval.'),
         };
     }
